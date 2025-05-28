@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - CourierPro</title>
+  <style>
+    :root {
+      --primary-color: #f7921e;
+      --primary-hover: #e68416;
+      --text-color: #1e2d3c;
+      --bg-color: #f4eee3;
+      --white: #ffffff;
+      --error-color: #e74c3c;
+      --success-color: #2ecc71;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo img {
+      height: 80px;
+      width: auto;
+    }
+    
+    .auth-card {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      width: 100%;
+    }
+    
+    .auth-title {
+      color: var(--text-color);
+      font-size: 26px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .auth-link {
+      color: var(--text-color);
+      font-size: 14px;
+      text-decoration: none;
+    }
+    
+    .auth-link:hover {
+      text-decoration: underline;
+    }
+    
+    .auth-message {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .error {
+      color: var(--error-color);
+    }
+    
+    .success {
+      color: var(--success-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="CourierPro Logo">
+    </div>
+    
+    <div class="auth-card">
+      <h1 class="auth-title">Login to your account</h1>
+      
+      <div class="form-group">
+        <input type="text" id="username" class="form-control" placeholder="Username" autocomplete="username" required>
+      </div>
+      
+      <div class="form-group">
+        <input type="password" id="password" class="form-control" placeholder="Password" autocomplete="current-password" required>
+      </div>
+      
+      <button type="button" class="btn" onclick="login()">Login</button>
+      
+      <p id="loginMsg" class="auth-message"></p>
+      
+      <div class="auth-footer">
+        <a href="/signup.html" class="auth-link">Don't have an account? Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function login() {
+      const data = {
+        username: document.getElementById("username").value.trim(),
+        password: document.getElementById("password").value.trim()
+      };
+
+      const msg = document.getElementById("loginMsg");
+      msg.className = "auth-message";
+      
+      if (!data.username || !data.password) {
+        msg.textContent = "Please enter both username and password.";
+        msg.classList.add("error");
+        return;
+      }
+
+      fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          msg.textContent = "Login successful! Redirecting...";
+          msg.classList.add("success");
+          setTimeout(() => window.location.href = "/dashboard", 1000);
+        } else {
+          msg.textContent = result.message || "Invalid credentials.";
+          msg.classList.add("error");
+        }
+      })
+      .catch(error => {
+        msg.textContent = "An error occurred. Please try again.";
+        msg.classList.add("error");
+        console.error("Login error:", error);
+      });
+    }
+    
+    // Allow login on Enter key press
+    document.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
+</body>
+</html>

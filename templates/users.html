@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users Management - CourierPro</title>
+  <style>
+    :root {
+      --primary-color: #f7921e;
+      --primary-hover: #e68416;
+      --text-color: #1e2d3c;
+      --bg-color: #f4eee3;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      height: 60px;
+      width: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: var(--text-color);
+    }
+
+    .back-btn {
+      text-decoration: none;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-buttons button {
+      flex: 1;
+      padding: 10px;
+      background: var(--white);
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-color);
+      transition: background-color 0.2s ease;
+    }
+
+    .filter-buttons button.active,
+    .filter-buttons button:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      color: var(--text-color);
+    }
+
+    th {
+      background-color: #f9f9f9;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    tr:hover {
+      background-color: #fef6e8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="CourierPro Logo" />
+    </div>
+
+    <div class="header">
+      <h1>Users Management</h1>
+      <a href="/dashboard" class="back-btn">← Back</a>
+    </div>
+
+    <div class="filter-buttons">
+      <button class="active" onclick="filterUsers('all')">All</button>
+      <button onclick="filterUsers('admin')">Admin</button>
+      <button onclick="filterUsers('manager')">Manager</button>
+      <button onclick="filterUsers('customer')">Customer</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Username</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable">
+        <!-- Users will be injected here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let allUsers = [];
+
+    function loadUsers() {
+      fetch('/admin/users')
+        .then(res => res.json())
+        .then(data => {
+          allUsers = data;
+          renderUsers(data);
+        })
+        .catch(err => {
+          document.getElementById('usersTable').innerHTML =
+            '<tr><td colspan="3">Failed to load users.</td></tr>';
+        });
+    }
+
+    function renderUsers(users) {
+      const table = document.getElementById('usersTable');
+      table.innerHTML = '';
+
+      if (!users.length) {
+        table.innerHTML = '<tr><td colspan="3">No users found.</td></tr>';
+        return;
+      }
+
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.user_id}</td>
+          <td>${user.username}</td>
+          <td>${user.role}</td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function filterUsers(role) {
+      document.querySelectorAll('.filter-buttons button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(role)) {
+          btn.classList.add('active');
+        }
+      });
+
+      if (role === 'all') {
+        renderUsers(allUsers);
+      } else {
+        const filtered = allUsers.filter(user => user.role === role);
+        renderUsers(filtered);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+  </script>
+</body>
+</html>

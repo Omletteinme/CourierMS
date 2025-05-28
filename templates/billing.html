@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing - CourierPro</title>
+  <style>
+    :root {
+      --primary-color: #f7921e;
+      --primary-hover: #e68416;
+      --text-color: #1e2d3c;
+      --bg-color: #f4eee3;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo img {
+      height: 70px;
+      width: auto;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .navbar h2 {
+      font-size: 24px;
+      color: var(--text-color);
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    h3 {
+      margin: 20px 0 10px;
+      color: var(--text-color);
+    }
+
+    select, button {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: var(--white);
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    .bill-section {
+      margin-bottom: 20px;
+    }
+
+    .bill-section h4 {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+
+    .bill-item p {
+      margin: 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="CourierPro Logo" />
+    </div>
+
+    <div class="navbar">
+      <h2>Billing</h2>
+      <a href="/dashboard">← Back</a>
+    </div>
+
+    <h3>Select a Shipment</h3>
+    <select id="trackingDropdown">
+      <option value="">-- Select a shipment --</option>
+    </select>
+
+    <div id="shipmentDetails" class="card" style="display: none;">
+      <h3>Shipment Details</h3>
+      <div id="packageDetails" class="bill-section"></div>
+      <div id="recipientDetails" class="bill-section"></div>
+      <div class="bill-section">
+        <button onclick="makePayment()">Pay Now</button>
+      </div>
+    </div>
+
+    <h3>Your Complete Bill</h3>
+    <button onclick="downloadBill()">Download Full Bill (PDF)</button>
+
+    <div id="fullBillDetails" class="card" style="display: none;">
+      <h3>Complete Billing Information</h3>
+      <div id="customerDetails" class="bill-section"></div>
+      <div id="allShipments" class="bill-section"></div>
+      <div id="totalDue" class="bill-section"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/get-my-shipments')
+        .then(res => res.json())
+        .then(data => {
+          const dropdown = document.getElementById('trackingDropdown');
+          data.forEach(shipment => {
+            const option = document.createElement('option');
+            option.value = shipment.tracking_number;
+            option.textContent = `${shipment.tracking_number} (${shipment.type}) - ₹${shipment.amount.toFixed(2)}`;
+            dropdown.appendChild(option);
+          });
+        });
+    });
+
+    document.getElementById('trackingDropdown').addEventListener('change', function () {
+      const trackingNumber = this.value;
+      if (!trackingNumber) {
+        document.getElementById('shipmentDetails').style.display = 'none';
+        return;
+      }
+
+      fetch(`/shipment-details/${trackingNumber}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('packageDetails').innerHTML = `
+            <h4>Package Info</h4>
+            <div class="bill-item">
+              <p><strong>Tracking #:</strong> ${data.tracking_number}</p>
+              <p><strong>Type:</strong> ${data.type}</p>
+              <p><strong>Weight:</strong> ${data.weight} kg</p>
+              <p><strong>Priority:</strong> ${data.priority}</p>
+              <p><strong>Status:</strong> ${data.status}</p>
+              <p><strong>Amount:</strong> ₹${data.amount.toFixed(2)}</p>
+            </div>
+          `;
+
+          document.getElementById('recipientDetails').innerHTML = `
+            <h4>Recipient Info</h4>
+            <div class="bill-item">
+              <p><strong>Name:</strong> ${data.recipient.first_name} ${data.recipient.last_name}</p>
+              <p><strong>Address:</strong> ${data.recipient.address}</p>
+            </div>
+          `;
+
+          document.getElementById('shipmentDetails').style.display = 'block';
+        });
+    });
+
+    function makePayment() {
+      const trackingNumber = document.getElementById('trackingDropdown').value;
+      if (!trackingNumber) return;
+
+      fetch(`/make-payment/${trackingNumber}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Payment successful!');
+            location.reload();
+          } else {
+            alert('Payment failed: ' + data.message);
+          }
+        });
+    }
+
+    function downloadBill() {
+      window.open('/generate-bill', '_blank');
+    }
+  </script>
+</body>
+</html>

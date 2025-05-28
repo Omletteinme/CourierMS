@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - CourierPro</title>
+  <style>
+  :root {
+    --primary-color: #f7921e;
+    --primary-hover: #e68416;
+    --text-color: #1e2d3c;
+    --bg-color: #f4eee3;
+    --white: #ffffff;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #navbar {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  #navbar button,
+  #navbar a {
+    background: var(--white);
+    border: 1px solid #ccc;
+    color: var(--primary-color);
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+  }
+
+  #navbar button:hover,
+  #navbar a:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: scale(1.05);
+  }
+
+  h1 {
+    max-width: 1200px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 2.4rem;
+    text-align: center;
+    color: var(--text-color);
+  }
+
+  #customerSection,
+  #adminSection {
+    width: 100%;
+    max-width: 1200px;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+  }
+
+  #customerSection h2,
+  #adminSection h2 {
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  form fieldset {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background: #fdfdfd;
+  }
+
+  form legend {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+  }
+
+  form input,
+  form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: var(--white);
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+
+  form input::placeholder {
+    color: #888;
+  }
+
+  form button[type="submit"] {
+    background: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  form button[type="submit"]:hover {
+    background: var(--primary-hover);
+  }
+
+  #resultMsg {
+    margin-top: 18px;
+    font-size: 1.05rem;
+    text-align: center;
+    min-height: 24px;
+    font-weight: 600;
+    color: #28a745;
+  }
+
+  #adminSummary {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    gap: 40px;
+    flex-wrap: wrap;
+    color: var(--text-color);
+  }
+
+  #adminSummary h3 {
+    background: #f7921e;
+    padding: 18px 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-align: center;
+    flex: 1 1 280px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  th,
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    color: var(--text-color);
+  }
+
+  th {
+    background-color: #f9f9f9;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+
+  tr:hover {
+    background-color: #fef6e8;
+  }
+
+  select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: var(--white);
+    color: var(--text-color);
+    cursor: pointer;
+  }
+
+  .status-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .status-filter button {
+    flex: 1;
+    padding: 10px;
+    background: var(--white);
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: background-color 0.2s;
+  }
+
+  .status-filter button.active,
+  .status-filter button:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  #createManagerForm {
+    margin: 30px 0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fffaf3;
+  }
+
+  #createManagerForm input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  #createManagerForm button {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+
+  #createManagerForm button:hover {
+    background-color: var(--primary-hover);
+  }
+
+  #profileDropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  #dropdownMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: var(--white);
+    min-width: 180px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    overflow: hidden;
+    transform-origin: top right;
+    transform: scale(0);
+    transition: transform 0.2s ease-out;
+  }
+
+  #dropdownMenu a,
+  #dropdownMenu div {
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text-color);
+    display: block;
+  }
+
+  #dropdownMenu a:hover,
+  #dropdownMenu div:hover {
+    background: #fef6e8;
+  }
+
+  .show-dropdown {
+    display: block !important;
+    transform: scale(1) !important;
+    animation: dropdownFadeIn 0.2s ease-out;
+  }
+
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 768px) {
+    #navbar {
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .status-filter {
+      flex-direction: column;
+    }
+
+    #customerSection,
+    #adminSection {
+      padding: 20px;
+    }
+
+    th,
+    td {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+</head>
+<body>
+  <div id="navbar">
+  <!-- Add this profile dropdown container -->
+  <div id="profileDropdown" style="position: relative; display: inline-block;">
+    <div id="profileIcon" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="6" r="4" stroke="white" stroke-width="1.5"/>
+        <path d="M19.9975 18C20 17.8358 20 17.669 20 17.5C20 15.0147 16.4183 13 12 13C7.58172 13 4 15.0147 4 17.5C4 17.669 4 17.8358 4.00246 18H19.9975Z" stroke="white" stroke-width="1.5"/>
+      </svg>
+      <span id="usernameDisplay" style="font-weight: 600;"></span>
+    </div>
+    <div id="dropdownMenu" style="display: none; position: absolute; right: 0; background: rgba(255 255 255 / 0.9); min-width: 180px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1; overflow: hidden; transform-origin: top right; transform: scale(0); transition: transform 0.2s ease-out;">
+      <div id="greeting" style="padding: 12px 16px; font-weight: 600; color: #203a43; border-bottom: 1px solid #eee;"></div>
+      <a href="/orders" style="display: block; padding: 12px 16px; text-decoration: none; color: #203a43; transition: background 0.2s;" id="ordersLink">My Orders</a>
+      <a href="/billing" style="display: block; padding: 12px 16px; text-decoration: none; color: #203a43; transition: background 0.2s;" id="billingLink">Billing</a>
+      <div onclick="logout()" style="padding: 12px 16px; cursor: pointer; color: #203a43; transition: background 0.2s;">Logout</div>
+    </div>
+  </div>
+</div>
+
+  <h1>CourierPro Dashboard</h1>
+
+  <!-- CUSTOMER VIEW -->
+  <div id="customerSection" style="display:none;">
+    <h2>Create New Courier</h2>
+    <form id="courierForm">
+      <fieldset>
+        <legend>Customer Info</legend>
+        <input name="customer_first" placeholder="First Name" required />
+        <input name="customer_last" placeholder="Last Name" required />
+        <input name="customer_phone" placeholder="Phone" required />
+        <input name="customer_email" placeholder="Email" required />
+        <input name="customer_address" placeholder="Address" required />
+      </fieldset>
+      <fieldset>
+        <legend>Recipient Info</legend>
+        <input name="recipient_first" placeholder="First Name" required />
+        <input name="recipient_last" placeholder="Last Name" required />
+        <input name="recipient_phone" placeholder="Phone" required />
+        <input name="recipient_email" placeholder="Email" required />
+        <input name="recipient_address" placeholder="Address" required />
+      </fieldset>
+      <fieldset>
+        <legend>Package Info</legend>
+        <input name="weight" placeholder="Weight (kg)" required />
+        <input name="type" placeholder="Package Type" required />
+        <select name="priority" required>
+                  <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+      </select>
+      <input name="status" type="hidden" value="Pending" />
+      </fieldset>
+      <button type="submit">Create Courier</button>
+    </form>
+    <p id="resultMsg"></p>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="adminSection" style="display:none;">
+    <div id="adminSummary">
+      <h3>Total Revenue: ₹<span id="totalRevenue">0.00</span></h3>
+      <h3>Total Orders: <span id="totalOrders">0</span></h3>
+    </div>
+    <!-- Add this above the table in the admin section -->
+<div class="status-filter" style="margin-bottom: 20px;">
+  <button class="active" onclick="filterAdminOrders('all')">All Orders</button>
+  <button onclick="filterAdminOrders('Pending')">Pending</button>
+  <button onclick="filterAdminOrders('Dispatched')">Dispatched</button>
+  <button onclick="filterAdminOrders('In Transit')">In Transit</button>
+  <button onclick="filterAdminOrders('Delivered')">Delivered</button>
+  <button onclick="filterAdminOrders('Cancelled')">Cancelled</button>
+</div>
+    <h2>All Couriers</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Weight (kg)</th>
+          <th>Priority</th>
+          <th>Price (₹)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="adminOrders">
+        <!-- Orders will be injected here -->
+      </tbody>
+    </table>
+  </div>
+
+<!-- Manager Creation Form - Admin Only -->
+<div id="createManagerForm" style="margin: 30px 0; padding: 20px; border: 1px solid rgb(0, 0, 0); border-radius: 10px; background-color: rgba(255,255,255,0.05); display: none;">
+  <h3 style="margin-bottom: 10px;">Create New Manager</h3>
+  <input type="text" id="newManagerUsername" placeholder="Manager Username" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px;" />
+  <input type="password" id="newManagerPassword" placeholder="Manager Password" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px;" />
+  <button onclick="createManager()" style="padding: 10px 20px; border-radius: 6px; background-color: #f7921e; color: white; font-weight: bold;">Create Manager</button>
+  <p id="createManagerMsg" style="margin-top: 10px;"></p>
+</div>
+
+
+<script>
+  const fallbackRole = "{{ role | safe }}";
+const fallbackUsername = "{{ username | safe }}";
+const role = localStorage.getItem("role") || fallbackRole;
+const username = localStorage.getItem("username") || fallbackUsername || "User";
+
+  window.onload = () => {
+    document.getElementById("usernameDisplay").textContent = username;
+    document.getElementById("greeting").textContent = `Hey ${username}`;
+
+    if (role === "admin" || role === "manager") {
+      document.getElementById("adminSection").style.display = "block";
+      fetchCouriers();
+    } else if (role === "customer") {
+      document.getElementById("customerSection").style.display = "block";
+    } else {
+      alert("Unauthorized. Redirecting to login.");
+      window.location.href = "/login.html";
+    }
+
+    if (role === "admin") {
+      document.getElementById("createManagerForm").style.display = "block";
+      const usersLink = document.createElement('a');
+      usersLink.href = '/users.html';
+      usersLink.textContent = 'Manage Users';
+      usersLink.style.display = 'block';
+      usersLink.style.padding = '12px 16px';
+      usersLink.style.textDecoration = 'none';
+      usersLink.style.color = '#203a43';
+      document.getElementById('dropdownMenu').insertBefore(usersLink, document.getElementById('billingLink'));
+    }
+
+    if (role !== "customer") {
+      document.getElementById("ordersLink")?.remove();
+    }
+  };
+
+  function logout() {
+    fetch("/logout", { method: "POST" })
+      .then(() => {
+        localStorage.clear();
+        window.location.href = "/login.html";
+      });
+  }
+
+  function fetchCouriers() {
+    fetch("/couriers")
+      .then(res => res.json())
+      .then(data => {
+        allAdminCouriers = data;
+        renderAdminCouriers(allAdminCouriers);
+
+        let totalRevenue = 0;
+        let totalOrders = data.length;
+
+        data.forEach(courier => {
+          totalRevenue += parseFloat(courier.amount) || 0;
+        });
+
+        document.getElementById("totalRevenue").textContent = totalRevenue.toFixed(2);
+        document.getElementById("totalOrders").textContent = totalOrders;
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("adminOrders").innerHTML =
+          `<tr><td colspan="7">Error loading orders: ${error.message}</td></tr>`;
+      });
+  }
+
+  function updateStatus(id, status) {
+    fetch(`/update-status/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    }).then(res => res.json()).then(msg => {
+      alert(msg.message);
+      fetchCouriers();
+    });
+  }
+
+  function createManager() {
+    const username = document.getElementById("newManagerUsername").value.trim();
+    const password = document.getElementById("newManagerPassword").value.trim();
+    const msg = document.getElementById("createManagerMsg");
+
+    if (!username || !password) {
+      msg.textContent = "Username and password are required.";
+      msg.style.color = "orange";
+      return;
+    }
+
+    fetch("/admin/create-manager", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      msg.textContent = data.message || (data.success ? "Manager created!" : "Failed.");
+      msg.style.color = data.success ? "lightgreen" : "red";
+      if (data.success) {
+        document.getElementById("newManagerUsername").value = "";
+        document.getElementById("newManagerPassword").value = "";
+      }
+    })
+    .catch(err => {
+      msg.textContent = "Error creating manager.";
+      msg.style.color = "red";
+      console.error(err);
+    });
+  }
+
+  document.getElementById("courierForm")?.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = new FormData(e.target);
+    const nameRegex = /^[A-Za-z ]+$/;
+    const phoneRegex = /^\d{10}$/;
+
+    const customerFirst = form.get("customer_first").trim();
+    const customerLast = form.get("customer_last").trim();
+    const customerPhone = form.get("customer_phone").trim();
+    const recipientFirst = form.get("recipient_first").trim();
+    const recipientLast = form.get("recipient_last").trim();
+    const recipientPhone = form.get("recipient_phone").trim();
+
+    if (!nameRegex.test(customerFirst) || !nameRegex.test(customerLast) ||
+        !nameRegex.test(recipientFirst) || !nameRegex.test(recipientLast)) {
+      document.getElementById("resultMsg").textContent = "Names cannot contain numbers or special characters.";
+      document.getElementById("resultMsg").style.color = "red";
+      return;
+    }
+
+    if (!phoneRegex.test(customerPhone) || !phoneRegex.test(recipientPhone)) {
+      document.getElementById("resultMsg").textContent = "Phone numbers must be exactly 10 digits and numeric.";
+      document.getElementById("resultMsg").style.color = "red";
+      return;
+    }
+
+    const data = {
+      customer: {
+        first_name: customerFirst,
+        last_name: customerLast,
+        phone: customerPhone,
+        email: form.get("customer_email"),
+        address: form.get("customer_address")
+      },
+      recipient: {
+        first_name: recipientFirst,
+        last_name: recipientLast,
+        phone: recipientPhone,
+        email: form.get("recipient_email"),
+        address: form.get("recipient_address")
+      },
+      package: {
+        weight: form.get("weight"),
+        type: form.get("type"),
+        priority: form.get("priority"),
+        status: form.get("status")
+      }
+    };
+
+    fetch("/create-courier", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }).then(res => res.json())
+      .then(result => {
+        document.getElementById("resultMsg").textContent = result.success
+          ? `Courier created. Tracking: ${result.tracking_number}`
+          : `Failed: ${result.message}`;
+        document.getElementById("resultMsg").style.color = result.success ? "lightgreen" : "red";
+      }).catch(err => {
+        document.getElementById("resultMsg").textContent = "Error creating courier.";
+        document.getElementById("resultMsg").style.color = "red";
+      });
+  });
+
+  document.getElementById("profileIcon").addEventListener("click", function (e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById("dropdownMenu");
+    dropdown.classList.toggle("show-dropdown");
+  });
+
+  document.addEventListener("click", function () {
+    const dropdown = document.getElementById("dropdownMenu");
+    if (dropdown.classList.contains("show-dropdown")) {
+      dropdown.classList.remove("show-dropdown");
+    }
+  });
+
+  let allAdminCouriers = [];
+  let currentAdminFilter = 'all';
+
+  function filterAdminOrders(status) {
+    currentAdminFilter = status;
+
+    document.querySelectorAll('#adminSection .status-filter button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.includes(status) || (status === 'all' && btn.textContent.includes('All'))) {
+        btn.classList.add('active');
+      }
+    });
+
+    if (status === 'all') {
+      renderAdminCouriers(allAdminCouriers);
+    } else {
+      const filtered = allAdminCouriers.filter(courier => courier.status === status);
+      renderAdminCouriers(filtered);
+    }
+  }
+
+  function renderAdminCouriers(couriers) {
+    const table = document.getElementById("adminOrders");
+    table.innerHTML = "";
+
+    if (!couriers.length) {
+      table.innerHTML = `<tr><td colspan="7">No orders found</td></tr>`;
+      return;
+    }
+
+    couriers.forEach(courier => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${courier.customer_name || 'N/A'}</td>
+        <td>${courier.customer_email || 'N/A'}</td>
+        <td>${courier.type || 'N/A'}</td>
+        <td>${courier.weight || 'N/A'}</td>
+        <td>${courier.priority || 'N/A'}</td>
+        <td>₹${courier.amount ? parseFloat(courier.amount).toFixed(2) : '0.00'}</td>
+        <td>
+          <select onchange="updateStatus(${courier.courier_id}, this.value)">
+            <option value="Pending" ${courier.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option value="Dispatched" ${courier.status === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+            <option value="In Transit" ${courier.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+            <option value="Delivered" ${courier.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            <option value="Cancelled" ${courier.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </td>
+      `;
+      table.appendChild(row);
+    });
+  }
+</script>
+
+
+</body>
+</html>
